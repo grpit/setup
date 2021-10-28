@@ -1,0 +1,163 @@
+---
+  - name: "Initialize and install things"
+    hosts: localhost
+    become: true
+
+    tasks:
+
+    # Setup Shell
+    - name: "Install ZSH"
+      pacman: 
+        name: zsh
+        state: present
+        update_cache: true
+    
+    # Set zsh as default shell
+    # - name: "Set zsh as default shell"
+    #   command: chsh -s /usr/bin/zsh
+    
+    - name: "Install oh-my-zsh"
+      command: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+      become: false
+      args:
+        creates: ~/.oh-my-zsh
+    
+    - name: "Clone syntax highligh plugin"
+      become: false
+      git:
+        repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+        dest: ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+        clone: yes
+        update: yes
+    
+    - name: "Clone auto suggestions plugin"
+      become: false
+      git:
+        repo: https://github.com/zsh-users/zsh-autosuggestions.git
+        dest: ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+        clone: yes
+        update: yes
+    
+    - name: "Update plugins in zshrc"
+      become: false
+      lineinfile:
+        path: ~/.zshrc
+        regexp: ^plugins=\(.*\)
+        # be careful about this, might not be what you want 
+        line: plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
+        backrefs: yes
+
+    - name: "Set Zsh Theme"
+      become: false
+      lineinfile:
+        path: ~/.zshrc
+        regexp: ^ZSH_THEME=.*
+        line: ZSH_THEME="norm"
+        backrefs: yes
+    
+    - name: "Update Zsh prompt"
+      become: false
+      lineinfile:
+        path: ~/.zshrc
+        line: PROMPT='%{$fg[yellow]%}λ %{$fg[white]%}%c %{$fg[yellow]%}$(git_prompt_info)$(hg_prompt_info)%{$fg[yellow]%}→ '
+
+    - name: "Update Zsh prompt"
+      become: false
+      lineinfile:
+        path: ~/.zshrc
+        line: ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[red]%}("
+
+    - name: "Update Zsh prompt"
+      become: false
+      lineinfile:
+        path: ~/.zshrc
+        line: ZSH_THEME_GIT_PROMPT_SUFFIX=")%{$reset_color%} "
+    
+    # - debug: var=out.stdout_lines
+    
+    # TMUX
+    - name: "Install TMUX"
+      pacman:
+        name: tmux
+        state: present
+        update_cache: true
+    
+    - name: "Configure TMUX"
+      copy:
+        src: "{{ playbook_dir }}/dotfiles/.tmux.conf"
+        dest: /home/${USER}/
+        force: yes
+      become: false
+
+    # Docker
+    - name: "Install docker"
+      pacman:
+        name: docker
+        state: present
+        update_cache: true
+    
+    - name: "Add user to docker"
+      become: false
+      command: sudo usermod -aG docker ${USER}
+
+    - name: "Install Docker Compose"
+      pacman:
+        name: docker-compose
+        state: present
+        update_cache: true
+
+    # - debug: var=out.stdout_lines
+
+    # Go
+    - name: "Install Golang"
+      pacman:
+        name: go
+        state: present
+        update_cache: true
+
+    - name: "Setup GOPATH"
+      become: false
+      lineinfile:
+        path: ~/.zshrc
+        line: export GOPATH=$HOME/go
+
+    # K3d
+    # - name: "Install K3D"
+    #   kewlfft.aur.aur:
+    #     name: rancher-k3d-bin
+    #     use: 
+    #     state: present
+
+    # VScode
+
+    # Neovim
+    - name: "Install NeoVim"
+      pacman:
+        name: neovim
+        state: present
+        update_cache: true
+
+    # Brave
+    - name: "Install brave browser"
+      pacman: 
+        name: brave-browser
+        state: present
+        update_cache: true
+
+    # VLC
+    - name: "Install VLC"
+      pacman: 
+        name: vlc
+        state: present
+        update_cache: true
+
+    # - name: "Copy conf files"
+    #   become: false
+    #   copy:
+    #     src: "{{ playbook_dir }}"/dotfiles/nvim
+    #     dest: 
+    #     force: yes
+
+
+
+    # - debug: "{{ ansible_user }}"
