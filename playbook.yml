@@ -115,7 +115,7 @@
         become: false
         lineinfile:
           path: ~/.zshrc
-          line: PROMPT='%{$fg[yellow]%}λ %{$fg[white]%}%c %{$fg[yellow]%}$(git_prompt_info)$(hg_prompt_info)%{$fg[yellow]%}→ '
+          line: PROMPT='%{$fg[yellow]%}λ %{$fg[cyan]%}%c %{$fg[yellow]%}$(git_prompt_info)$(hg_prompt_info)%{$fg[yellow]%}→ '
 
       - name: "Update Zsh prompt"
         become: false
@@ -140,7 +140,13 @@
           name: ripgrep
           state: present
           update_cache: true
-      
+
+      - name: "Install xclip"
+        pacman:
+          name: xclip
+          state: present
+          update_cache: true
+
       # TMUX
       - name: "Install TMUX"
         pacman:
@@ -149,11 +155,11 @@
           update_cache: true
       
       - name: "Configure TMUX"
+        become: false
         copy:
           src: "{{ playbook_dir }}/dotfiles/.tmux.conf"
           dest: /home/${USER}/
           force: yes
-        become: false
 
       # Docker
       - name: "Install docker"
@@ -203,14 +209,17 @@
       - name: "Install plug for nvim"
         become: false
         command: sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-# 
-      # - name: "Copy conf files"
-      #   become: false
-      #   copy:
-      #     src: "{{ playbook_dir }}"/dotfiles/nvim
-      #     dest: 
-      #     force: yes
-# 
+
+      - name: "Copy conf files"
+        become: false
+        copy:
+          src: "{{ playbook_dir }}/dotfiles/init.vim"
+          dest: ~/.config/nvim/init.vim
+          force: yes
+
+      - name: Install vim plugins 
+        command: nvim "+silent! PlugInstall!" +qall!
+
       # Brave
       - name: "Install brave browser"
         pacman: 
