@@ -4,6 +4,43 @@
     become: true
 
     tasks:
+      - name: "Install Golang"
+        pacman:
+          name: go
+          state: present
+          update_cache: true
+
+      - name: "Add GOROOT"
+        become: false
+        lineinfile:
+          path: ~/.zshrc
+          line: export GOROOT=/usr/local/go
+
+      - name: "Add GOROOT to path"
+        become: false
+        lineinfile:
+          path: ~/.zshrc
+          line: export PATH=$PATH:$GOROOT/bin
+
+      - name: "Setup GOPATH"
+        become: false
+        lineinfile:
+          path: ~/.zshrc
+          line: export GOPATH=$HOME/go
+
+      - name: "Get `yay` for AUR packages"
+        become: false
+        git:
+          repo: https://aur.archlinux.org/yay.git
+          dest: ~/.yay
+          clone: yes
+          update: yes
+
+      - name: "Make yay"
+        become: false
+        command: makepkg -si --noconfirm
+        args:
+          chdir: ~/.yay
 
     # Setup Shell
     - name: "Install ZSH"
@@ -108,25 +145,18 @@
 
     # - debug: var=out.stdout_lines
 
-    # Go
-    - name: "Install Golang"
+      # K3d
+      - name: "Install K3D"
+        become: false
+        kewlfft.aur.aur:
+          name: rancher-k3d-bin
+          state: present
+      
+      # kubectl
+      - name: "Install kubectl"
       pacman:
-        name: go
+          name: kubectl
         state: present
-        update_cache: true
-
-    - name: "Setup GOPATH"
-      become: false
-      lineinfile:
-        path: ~/.zshrc
-        line: export GOPATH=$HOME/go
-
-    # K3d
-    # - name: "Install K3D"
-    #   kewlfft.aur.aur:
-    #     name: rancher-k3d-bin
-    #     use: 
-    #     state: present
 
     # VScode
 
