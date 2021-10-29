@@ -28,6 +28,25 @@
           path: ~/.zshrc
           line: export GOPATH=$HOME/go
 
+      - name: "Install NVM"
+        become: false
+        shell: >
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+        args:
+          creates: "~/.nvm/nvm.sh"
+
+      - name: "Ensure NVM is added in zshrc"
+        become: false
+        lineinfile:
+          path: ~/.zshrc
+          line: export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+          
+      - name: "Ensure NVM is loaded in zshrc"
+        become: false
+        lineinfile:
+          path: ~/.zshrc
+          line: '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm'
+      
       - name: "Get `yay` for AUR packages"
         become: false
         git:
@@ -109,8 +128,18 @@
         lineinfile:
           path: ~/.zshrc
           line: ZSH_THEME_GIT_PROMPT_SUFFIX=")%{$reset_color%} "
-      
-      # - debug: var=out.stdout_lines
+
+      - name: "Install lazygit"
+        pacman:
+          name: lazygit
+          state: present
+          update_cache: true
+          
+      - name: "Install ripgrep"
+        pacman:
+          name: ripgrep
+          state: present
+          update_cache: true
       
       # TMUX
       - name: "Install TMUX"
@@ -142,8 +171,6 @@
           name: docker-compose
           state: present
           update_cache: true
-
-      # - debug: var=out.stdout_lines
 
       # K3d
       - name: "Install K3D"
