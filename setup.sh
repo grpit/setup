@@ -18,3 +18,5 @@ source ~/.zshrc
 
 # Install latest node and npm
 nvm install --lts
+
+# Other packages to install

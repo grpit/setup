@@ -10,23 +10,17 @@
           state: present
           update_cache: true
 
-      - name: "Add GOROOT"
-        become: false
-        lineinfile:
-          path: ~/.zshrc
-          line: export GOROOT=/usr/local/go
-
-      - name: "Add GOROOT to path"
-        become: false
-        lineinfile:
-          path: ~/.zshrc
-          line: export PATH=$PATH:$GOROOT/bin
-
-      - name: "Setup GOPATH"
+      - name: "Add GOPATH"
         become: false
         lineinfile:
           path: ~/.zshrc
           line: export GOPATH=$HOME/go
+
+      - name: "Add GOPATH bin to path"
+        become: false
+        lineinfile:
+          path: ~/.zshrc
+          line: export PATH=$PATH:$GOPATH/bin
 
       - name: "Install NVM"
         become: false
@@ -115,7 +109,7 @@
         become: false
         lineinfile:
           path: ~/.zshrc
-          line: PROMPT='%{$fg[yellow]%}λ %{$fg[cyan]%}%c %{$fg[yellow]%}$(git_prompt_info)$(hg_prompt_info)%{$fg[yellow]%}→ '
+          line: "PROMPT='%{$fg[yellow]%}λ %{$fg[cyan]%}%c %{$fg[yellow]%}$(git_prompt_info)$(hg_prompt_info)%{$fg[yellow]%}→ '"
 
       - name: "Update Zsh prompt"
         become: false
@@ -233,3 +227,16 @@
           name: vlc
           state: present
           update_cache: true
+
+      - name: "Install gimp"
+        pacman:
+          name: gimp
+          state: present
+          update_cache: true
+
+      - name: "Install scribus"
+        pacman:
+          name: scribus
+          state: present
+          update_cache: true
+
